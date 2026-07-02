@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>란타넘족 원소 탐구실</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  
+  <style>
+    :root {
+      --bg-color: #070913;
+      --panel-bg: rgba(18, 22, 47, 0.85);
+      --accent-neon: #00f3ff;
+      --accent-glow: rgba(0, 243, 255, 0.4);
+      --text-main: #e2e8f0;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .quantum-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.06;
+      background-image: 
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 50 Q 25 20, 50 50 T 100 50' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E");
+    }
+
+    .bg-deco-text {
+      position: fixed;
+      font-family: 'Times New Roman', serif;
+      font-style: italic;
+      color: #fff;
+      opacity: 0.03;
+      pointer-events: none;
+      user-select: none;
+      z-index: -1;
+    }
+
+    #schrodinger-eq { top: 10%; left: 5%; font-size: 3rem; }
+    #cat-outline { bottom: 10%; right: 5%; font-size: 8rem; }
+    #wave-function { bottom: 15%; left: 8%; font-size: 2.5rem; }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid rgba(0, 243, 255, 0.2);
+      padding-bottom: 15px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: var(--accent-neon);
+      text-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    header p {
+      margin: 5px 0 0 0;
+      opacity: 0.7;
+      font-size: 1rem;
+    }
+
+    .element-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .el-btn {
+      background: rgba(25, 32, 71, 0.6);
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      border-radius: 8px;
+      color: #fff;
+      padding: 12px 5px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .el-btn:hover {
+      background: var(--accent-neon);
+      color: #000;
+      box-shadow: 0 0 15px var(--accent-neon);
+      transform: translateY(-3px);
+    }
+
+    .el-btn.active {
+      background: var(--accent-neon);
+      color: #000;
+      box-shadow: 0 0 20px var(--accent-neon);
+      border-color: #fff;
+    }
+
+    .el-btn span {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: normal;
+      opacity: 0.8;
+      margin-top: 3px;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 25px;
+    }
+
+    @media (max-width: 1000px) {
+      .dashboard { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 25px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      backdrop-filter: blur(4px);
+    }
+
+    .panel-title {
+      font-size: 1.3rem;
+      color: var(--accent-neon);
+      margin-top: 0;
+      margin-bottom: 20px;
+      border-left: 4px solid var(--accent-neon);
+      padding-left: 10px;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+
+    .info-table td {
+      padding: 10px 5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .info-table td.label {
+      width: 40%;
+      font-weight: bold;
+      color: #94a3b8;
+    }
+
+    .help-btn-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .help-mini-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #cbd5e1;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .help-mini-btn:hover {
+      background: rgba(0, 243, 255, 0.15);
+      border-color: var(--accent-neon);
+      color: #fff;
+    }
+
+    .canvas-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    canvas {
+      max-width: 100%;
+      background: transparent;
+    }
+
+    .control-box {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .slider {
+      flex: 1;
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 5px;
+      background: #1e293b;
+      outline: none;
+      transition: background 0.3s;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-neon);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-neon);
+    }
+
+    .view-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--accent-neon);
+      color: var(--accent-neon);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .view-toggle-btn:hover {
+      background: var(--accent-neon);
+      color: #000;
+      box-shadow: 0 0 12px var(--accent-neon);
+    }
+
+    .use-card {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 15px;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+
+    .use-canvas-box {
+      width: 120px;
+      height: 120px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #111633;
+      border: 2px solid var(--accent-neon);
+      border-radius: 12px;
+      padding: 25px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+    }
+
+    .modal-header {
+      font-size: 1.3rem;
+      color: var(--accent-neon);
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .modal-body {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin-bottom: 20px;
+    }
+
+    .modal-close {
+      background: var(--accent-neon);
+      color: #000;
+      border: none;
+      padding: 8px 20px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quantum-bg"></div>
+  <div class="bg-deco-text" id="schrodinger-eq">\(\hat{H}\Psi = E\Psi\)</div>
+  <div class="bg-deco-text" id="cat-outline">🐱 ⇄ 📦</div>
+  <div class="bg-deco-text" id="wave-function">\(\psi(x) = A e^{ikx}\)</div>
+
+  <div class="container">
+    <header>
+      <h1>란타넘족 원소 탐구실</h1>
+      <p>원자 번호 57번(La)부터 71번(Lu)까지 희토류 원소의 동역학적 보어 모형과 독특한 자성 상전이를 탐구해보세요.</p>
+    </header>
+
+    <div class="element-grid" id="button-grid"></div>
+
+    <div class="dashboard">
+      
+      <div class="panel">
+        <div class="panel-title">🔬 원소의 물리적 성질</div>
+        <table class="info-table">
+          <tr><td class="label">원소명 (한글/영문)</td><td id="info-names">-</td></tr>
+          <tr><td class="label">원소 기호 / 번호</td><td id="info-symbol-num">-</td></tr>
+          <tr><td class="label">평균 원자량</td><td id="info-weight">-</td></tr>
+          <tr><td class="label">전자 배치</td><td id="info-electron-config">-</td></tr>
+          <tr><td class="label">이론적 자기 모멘트 크기</td><td id="info-magnetic-moment">-</td></tr>
+          <tr><td class="label">단위 부피당 자기모멘트</td><td id="info-volumetric-moment" style="color:#fff; font-weight:bold;">-</td></tr>
+          <tr><td class="label">고유 상전이 온도</td><td id="info-transition-temp">-</td></tr>
+          <tr><td class="label">현재 온도 기준 자성</td><td id="info-current-magnetism" style="color:var(--accent-neon); font-weight:bold;">-</td></tr>
+        </table>
+
+        <div class="help-btn-container">
+          <button class="help-mini-btn" onclick="openModal('curie')">🌡️ 퀴리 온도란?</button>
+          <button class="help-mini-btn" onclick="openModal('neel')">❄️ 네엘 온도란?</button>
+        </div>
+
+        <div class="panel-title" style="margin-top:20px;">💡 성질과 그 응용</div>
+        <div class="use-card">
+          <div class="use-canvas-box">
+            <canvas id="use-canvas" width="120" height="120"></canvas>
+          </div>
+          <div>
+            <strong id="use-title" style="color: var(--accent-neon); font-size:1.2rem; display:block; margin-bottom:8px;">성질과 응용 핵심 요약</strong>
+            <p id="use-desc" style="margin:0; font-size:0.95rem; opacity:0.9; line-height:1.5; white-space: pre-wrap; color:#e2e8f0;"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <div class="panel-title" id="visual-panel-title" style="margin:0;">⚛️ 실시간 보어 원자 모형</div>
+          <button class="view-toggle-btn" id="toggle-visual-btn" onclick="toggleVisualMode()">자기모멘트 스핀 보기</button>
+        </div>
+
+        <div class="canvas-container">
+          <canvas id="main-canvas" width="450" height="450"></canvas>
+        </div>
+
+        <div class="control-box">
+          <div style="display:flex; justify-content:space-between;">
+            <span>🌡️ 환경 온도 조절 (자성 상전이 관찰용)</span>
+            <span id="temp-display" style="color:var(--accent-neon); font-weight:bold;">298 K (25.0 °C)</span>
+          </div>
+          <div class="slider-container">
+            <span>0 K</span>
+            <input type="range" min="0" max="350" value="298" class="slider" id="temp-slider" oninput="updateTemperature(this.value)">
+            <span>350 K</span>
+          </div>
+          <small style="display:block; margin-top:8px; opacity:0.6; line-height:1.3;">
+            * 온도를 낮추거나 높여보세요. 란타넘족 원소 특유의 나선형 반강자성, 원추형 강자성 등 거시적 스핀 상전이가 실시간으로 변화합니다.
+          </small>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="modal" id="help-modal">
+    <div class="modal-content">
+      <div class="modal-header" id="modal-title">도움말 제목</div>
+      <div class="modal-body" id="modal-body">도움말 내용</div>
+      <button class="modal-close" onclick="closeModal()">확인</button>
+    </div>
+  </div>
+
+  <script>
+    // 과학적 껍질 배열 정의: [K(2), L(8), M(18), N, O, P] 순서
+    const lanthanoidData = {
+      La: { 
+        name: "란타넘", eng: "Lanthanum", symbol: "La", num: 57, mass: 138.91, config: "[\\mathrm{Xe}]\\,5\\mathrm{d}^1 6\\mathrm{s}^2", moment: "0\\,\\mu_B", volumetric: "0 (자석에 붙지 않음)", transition: "없음 (6K 이하 초전도성)", tn: 0, tc: 0, specificMag: "paramagnetic", shells: [2, 8, 18, 18, 9, 2],
+        useTitle: "빛을 꺾어 선명함을 만드는 렌즈의 마법사", 
+        useDesc: "■ 원소의 성질: 유리에 섞으면 빛을 아주 크게 꺾이게(높은 굴절률) 만들면서도, 빛이 이리저리 흩어지거나 번지지 않게 꽉 잡아주는 아주 특별한 성질이 있어요.\n\n■ 쉬운 용도 풀이: 스마트폰 카메라나 방송용 카메라, 현미경의 최고급 렌즈를 만들 때 란타넘을 꼭 넣어요. 란타넘 덕분에 사진이나 영상의 가장자리가 흐려지거나 찌그러지지 않고, 아주 구석구석까지 깨끗하고 선명한 최고의 사진을 찍을 수 있게 된답니다!" 
+      },
+      Ce: { 
+        name: "세륨", eng: "Cerium", symbol: "Ce", num: 58, mass: 140.12, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^1 5\\mathrm{d}^1 6\\mathrm{s}^2", moment: "2.54\\,\\mu_B", volumetric: "약 1.6 μB/nm³ (매우 약하게 붙음)", transition: "Néel 온도: 12.5 K", tn: 12.5, tc: 0, specificMag: "afm", shells: [2, 8, 18, 19, 9, 2],
+        useTitle: "불꽃을 일으키는 환경 파수꾼", 
+        useDesc: "■ 원소의 성질: 쇠와 문지르면 아주 쉽게 불꽃을 튀기는 성질이 있고, 주변 환경에 따라 산소를 임시로 저장했다가 다시 내뿜는 화학적 능력이 뛰어납니다.\n\n■ 쉬운 용도 풀이: 우리가 손으로 슥 긁어서 불을 켜는 '라이터 돌'의 주인공이 바로 세륨이에요! 또 한 가지 중요한 쓰임새는 자동차 배기가스 통 안에 촉매로 들어가는 것인데, 자동차가 뿜어내는 해로운 독성 가스를 산소와 반응시켜 몸에 해롭지 않은 깨끗한 공기로 바꾸어 주는 멋진 필터 역할을 해준답니다." 
+      },
+      Pr: { 
+        name: "프라세오디뮴", eng: "Praseodymium", symbol: "Pr", num: 59, mass: 140.91, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^3 6\\mathrm{s}^2", moment: "3.58\\,\\mu_B", volumetric: "약 2.1 μB/nm³ (약하게 붙음)", transition: "Néel 온도: 1 K 미만", tn: 1, tc: 0, specificMag: "paramagnetic", shells: [2, 8, 18, 21, 8, 2],
+        useTitle: "강력한 노란 불빛을 삼키는 눈 보호기", 
+        useDesc: "■ 원소의 성질: 유리에 섞였을 때, 사람의 눈에 가장 해롭고 눈을 멀게 할 수 있는 강렬하고 눈부신 노란색 빛을 쏙 집어삼켜 흡수해 버리는 독특한 성질이 있습니다.\n\n■ 쉬운 용도 풀이: 불꽃을 매일 바라보며 쇠를 녹여 붙이는 용접공 아저씨들이나 뜨거운 유리를 굽는 유리 공예가들이 쓰는 '특수 보호 안경(고글)'에 이 원소가 들어갑니다. 안경이 해로운 불빛을 완벽하게 걸러주기 때문에, 아저씨들이 눈을 다치지 않고 안전하게 멋진 작품을 만들 수 있도록 보호해 줘요." 
+      },
+      Nd: { 
+        name: "네오디뮴", eng: "Neodymium", symbol: "Nd", num: 60, mass: 144.24, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^4 6\\mathrm{s}^2", moment: "3.62\\,\\mu_B", volumetric: "약 2.2 μB/nm³ (조건부 강하게 붙음)", transition: "Néel 온도: 19.9 K", tn: 19.9, tc: 0, specificMag: "afm", shells: [2, 8, 18, 22, 8, 2],
+        useTitle: "작지만 우주에서 가장 센 천하장사 자석", 
+        useDesc: "■ 원소의 성질: 철, 붕소라는 원소와 결합하면 인류가 지금까지 발견하고 만들어 낸 자석 중에서 힘이 가장 강력한 '영구자석'이 되는 대단한 성질이 있습니다.\n\n■ 쉬운 용도 풀이: 스마트폰이 '징~' 하고 울릴 때 돌아가는 미세한 진동 모터, 이어폰 속에서 작지만 엄청나게 웅장한 소리를 내뿜는 작은 스피커에 컴퓨터 하드디스크까지! 힘이 엄청나게 세기 때문에 자석 크기를 아주 작게 줄일 수 있어서, 우리가 쓰는 가전제품들을 아주 얇고 가볍게 만들 수 있게 해준 고마운 원소예요." 
+      },
+      Pm: { 
+        name: "프로메튬", eng: "Promethium", symbol: "Pm", num: 61, mass: 145.00, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^5 6\\mathrm{s}^2", moment: "2.68\\,\\mu_B", volumetric: "약 1.7 μB/nm³ (방사성 원소)", transition: "없음 (안정동위원소 없음)", tn: 0, tc: 0, specificMag: "paramagnetic", shells: [2, 8, 18, 23, 8, 2],
+        useTitle: "충전이 필요 없는 영원한 원자력 전지", 
+        useDesc: "■ 원소의 성질: 자연에는 존재하지 않고 실험실에서 만들어야 하는 인공 원소로, 스스로 방사선을 뿜어내며 붕괴하면서 열과 빛, 에너지를 끊임없이 내뿜는 성질이 있습니다.\n\n■ 쉬운 용도 풀이: 이 원소가 내뿜는 방사선을 전기로 바꾸는 '원자력 배터리'를 만들 수 있어요. 스마트폰처럼 매일 충전할 필요 없이 한 번 만들면 수십 년 동안 스스로 전기를 만들어내기 때문에, 배터리를 절대 갈아끼울 수 없는 먼 우주를 비행하는 인공위성이나 우주선의 심장 같은 전원으로 아주 소중하게 연구되고 있답니다." 
+      },
+      Sm: { 
+        name: "사마륨", eng: "Samarium", symbol: "Sm", num: 62, mass: 150.36, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^6 6\\mathrm{s}^2", moment: "0.84\\,\\mu_B", volumetric: "약 0.5 μB/nm³ (매우 약하게 반응)", transition: "Néel 온도: 106 K", tn: 106, tc: 0, specificMag: "afm", shells: [2, 8, 18, 24, 8, 2],
+        useTitle: "불가마 속에서도 자력을 잃지 않는 열혈 자석", 
+        useDesc: "■ 원소의 성질: 코발트라는 금속과 만나면 강력한 자석이 되는데, 특히 온도가 섭씨 300도 이상으로 엄청나게 뜨거워져도 힘이 전혀 약해지지 않고 버티는 대단한 열 저항 성질이 있습니다.\n\n■ 쉬운 용도 풀이: 일반적인 자석은 뜨거운 열을 받으면 자석의 힘을 잃고 그냥 돌덩이가 되어버려요. 하지만 사마륨 자석은 불가마 속에서도 자력을 유지하기 때문에, 엄청난 마찰열이 발생하는 유도 미사일의 정밀 조종 장치나 잠수함 발전기, 특수 고온 가전제품 모터 등에 핵심 부품으로 당당하게 쓰입니다." 
+      },
+      Eu: { 
+        name: "유로퓸", eng: "Europium", symbol: "Eu", num: 63, mass: 151.96, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^7 6\\mathrm{s}^2", moment: "7.94\\,\\mu_B", volumetric: "약 3.8 μB/nm³ (저온에서 잘 붙음)", transition: "Néel 온도: 90 K", tn: 90, tc: 0, specificMag: "helical", shells: [2, 8, 18, 25, 8, 2],
+        useTitle: "진짜와 가짜를 구별하는 붉은 빛의 감별사", 
+        useDesc: "■ 원소의 성질: 평소에는 숨어있다가 눈에 보이지 않는 자외선 빛을 받으면, 그 에너지를 받아서 눈이 부실 정도로 선명하고 아름다운 '빨간색 형광 빛'으로 바꾸어 내뿜는 성질이 있습니다.\n\n■ 쉬운 용도 풀이: 위조지폐나 훔친 여권을 걸러내는 비밀 요원이에요! 지폐나 여권을 인쇄할 때 유로퓸을 섞은 특수 잉크로 무늬를 그려두면, 평소에는 아무것도 안 보이다가 은행이나 공항 검사대에서 자외선 램프를 뿜 비추는 순간 숨겨진 빨간색 문양이 짠! 하고 빛나서 진짜임을 증명해 준답니다." 
+      },
+      Gd: { 
+        name: "가돌리늄", eng: "Gadolinium", symbol: "Gd", num: 64, mass: 157.25, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^7 5\\mathrm{d}^1 6\\mathrm{s}^2", moment: "7.94\\,\\mu_B", volumetric: "약 6.2 μB/nm³ (실온 이하 매우 강하게 붙음)", transition: "Curie 온도: 293 K (20 °C)", tn: 0, tc: 293, specificMag: "ferro", shells: [2, 8, 18, 25, 9, 2],
+        useTitle: "MRI 조영제와 친환경 자기열량 냉각의 주역", 
+        useDesc: "■ 원소의 성질: 전자 구조상 홀전자가 7개나 되어 자기장에 매우 민감하며, 특히 자석을 가까이 대면 온도가 올라가고 멀리하면 온도가 내려가는 신기한 '자기열량 효과(Magnetocaloric Effect)'를 가지고 있습니다.\n\n■ 쉬운 용도 풀이: 병원에서 암이나 아픈 곳을 찾아내기 위해 MRI(자기공명영상)라는 커다란 통 속에 들어가 촬영하기 전, 몸에 맞는 주사약(조영제)의 핵심 성분이에요. 이 원소가 몸속에 들어가면 우리 몸의 장기와 아픈 부위를 화면에 아주 밝고 선명한 대조로 그려내 의사 선생님이 병을 정확히 찾게 도와줍니다. 또한 가돌리늄의 '자기열량 효과'를 이용해 소음과 오염 가스가 전혀 없는 '미래형 무가스 친환경 냉장고'를 만드는 연구도 한창 진행 중이랍니다!" 
+      },
+      Tb: { 
+        name: "터븀", eng: "Terbium", symbol: "Tb", num: 65, mass: 158.93, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^9 6\\mathrm{s}^2", moment: "9.72\\,\\mu_B", volumetric: "약 7.4 μB/nm³ (저온에서 초강력 상태)", transition: "Curie: 219K, Néel: 230K", tn: 230, tc: 219, specificMag: "complex", shells: [2, 8, 18, 27, 8, 2],
+        useTitle: "거대한 풍력 발전기를 지키는 든든한 방패", 
+        useDesc: "■ 원소의 성질: 다른 자석 원소들이 열을 받아서 자성을 잃고 흔들릴 때, 원자 구조를 단단하게 지탱해 주어 높은 온도에서도 자석의 힘이 깨지지 않도록 막아주는 방어력이 매우 뛰어납니다.\n\n■ 쉬운 용도 풀이: 바다나 대관령에 서 있는 거대한 해상 풍력 발전기 터빈은 밤낮없이 엄청난 속도로 회전하기 때문에 내부 내부 발전기 모터가 터질 듯이 뜨거워져요. 이때 모터 안의 네오디뮴 자석에 터븀을 아주 살짝만 섞어주면, 자석이 열 때문에 망가지는 것을 완벽하게 막아주어 지치지 않고 친환경 에너지를 계속 만들어낼 수 있게 해준답니다." 
+      },
+      Dy: { 
+        name: "디스프로슘", eng: "Dysprosium", symbol: "Dy", num: 66, mass: 162.50, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^{10} 6\\mathrm{s}^2", moment: "10.63\\,\\mu_B", volumetric: "약 8.3 μB/nm³ (저온에서 최고조 결합)", transition: "Curie: 88K, Néel: 179K", tn: 179, tc: 88, specificMag: "complex", shells: [2, 8, 18, 28, 8, 2],
+        useTitle: "전기차를 쌩쌩 달리게 하는 고온 모터의 심장", 
+        useDesc: "■ 원소의 성질: 터븀과 마찬가지로 극한의 고속 회전과 마찰열이 발생하는 환경에서도 자석의 자력 방향이 뒤틀리거나 파괴되지 않도록 강력한 '보자력(자성을 유지하려는 힘)'을 주입하는 성질이 있습니다.\n\n■ 쉬운 용도 풀이: 우리가 도로에서 만나는 멋진 전기차나 하이브리드 자동차의 핵심은 바퀴를 굴리는 강력한 '구동 모터'예요. 전기차가 고속도로를 빠르게 달릴 때 모터가 엄청나게 뜨거워지는데, 자석에 디스프로슘을 첨가해 두면 모터 자석이 힘을 잃지 않고 짱짱하게 버텨주어 자동차가 지치지 않고 도로를 질주할 수 있게 해주는 숨은 영웅이랍니다." 
+      },
+      Ho: { 
+        name: "홀뮴", eng: "Holmium", symbol: "Ho", num: 67, mass: 164.93, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^{11} 6\\mathrm{s}^2", moment: "10.60\\,\\mu_B", volumetric: "약 8.4 μB/nm³ (전 원소 최고 수준)", transition: "Curie: 20K, Néel: 132K", tn: 132, tc: 20, specificMag: "ho-helical", shells: [2, 8, 18, 29, 8, 2],
+        useTitle: "양자 컴퓨터 세계의 단일 원자 초소형 메모리", 
+        useDesc: "■ 원소의 성질: 모든 원소 통틀어 자기장을 강하게 당기는 고유의 자성 크기(자기 모멘트)가 최고 수준이며, 놀랍게도 '원자 단 한 개' 크기 수준으로 쪼개도 자석의 성질과 방향을 뚜렷하게 유지하는 능력이 있습니다.\n\n■ 쉬운 용도 풀이: 보통 컴퓨터 메모리는 수억 개의 원자가 모여 정보를 저장하지만, 홀뮴은 원자 단 한 개에 디지털 정보인 '0'과 '1'을 저장할 수 있어요! 이 신비한 양자역학적 성질 덕분에 미래에 슈퍼컴퓨터보다 수억 배 빠른 꿈의 컴퓨터라 불리는 '양자 컴퓨터'의 초소형·대용량 차세대 기억 저장 장치(메모리)를 만드는 핵심 재료로 활발히 연구되고 있습니다." 
+      },
+      Er: { 
+        name: "어븀", eng: "Erbium", symbol: "Er", num: 68, mass: 167.26, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^{12} 6\\mathrm{s}^2", moment: "9.58\\,\\mu_B", volumetric: "약 7.4 μB/nm³ (저온 자화 강함)", transition: "Curie: 20K, Néel: 85K", tn: 85, tc: 20, specificMag: "sinusoidal", shells: [2, 8, 18, 30, 8, 2],
+        useTitle: "지구 반대편 소식도 전하는 초고속 광통신 증폭기", 
+        useDesc: "■ 원소의 성질: 특정한 에너지의 레이저 빛을 흡수하면, 그 에너지를 가두어 두었다가 지나가는 다른 통신 빛 신호를 자극해 똑같은 빛을 와르르 복제하며 빛을 증폭시키는 광학적 성질이 있습니다.\n\n■ 쉬운 용도 풀이: 우리가 유튜브나 인터넷을 할 때 정보는 바다 밑에 깔린 깊은 광섬유 케이블 속에서 '빛 신호'로 날아와요. 그런데 이 빛이 바다를 건너 수천 킬로미터를 가다 보면 힘이 빠져서 흐려지거든요. 이때 케이블 중간에 **EDFA(어븀 도핑 광섬유 증폭기)**라는 장치를 넣어두면 지나가는 통신 빛 신호를 수백 배로 다시 뻥튀기하듯 강하게 키워주어, 전 세계가 끊김 없이 실시간 초고속 인터넷을 즐길 수 있게 해준답니다." 
+      },
+      Tm: { 
+        name: "툴륨", eng: "Thulium", symbol: "Tm", num: 69, mass: 168.93, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^{13} 6\\mathrm{s}^2", moment: "7.56\\,\\mu_B", volumetric: "약 6.0 μB/nm³ (저온 자화 보통)", transition: "Curie: 32K, Néel: 56K", tn: 56, tc: 32, specificMag: "sinusoidal", shells: [2, 8, 18, 31, 8, 2],
+        useTitle: "전기 없이도 뼈를 찍어내는 이동식 야외 X-ray", 
+        useDesc: "■ 원소의 성질: 원자로에서 에너지를 한 번 먹여두면, 무거운 고전압 전선이나 거대한 장치 없이도 스스로 사람의 몸을 안전하게 투과할 수 있는 부드러운 방사선(감마선/X선)을 지속해서 내뿜는 성질이 있습니다.\n\n■ 쉬운 용도 풀이: 병원에 있는 커다란 엑스레이 장비는 엄청난 전기가 필요하지만, 툴륨을 이용하면 전기를 꽂지 않아도 작동하는 아주 작은 '휴대용 엑스레이 기기'를 만들 수 있어요. 덕분에 전기가 들어오지 않는 지진 재난 현장이나 전쟁터, 깊은 산속 야외 구조 현장에서 다친 환자의 뼈가 부러졌는지 그 자리에서 바로 찍어보고 구조할 수 있게 도와주는 고마운 원소입니다." 
+      },
+      Yb: { 
+        name: "이터븀", eng: "Ytterbium", symbol: "Yb", num: 70, mass: 173.05, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^{14} 6\\mathrm{s}^2", moment: "0\\,\\mu_B", volumetric: "0 (자석에 붙지 않음)", transition: "없음 (비자성)", tn: 0, tc: 0, specificMag: "paramagnetic", shells: [2, 8, 18, 32, 8, 2],
+        useTitle: "양자 컴퓨터의 계산을 담당하는 흔들리지 않는 두뇌", 
+        useDesc: "■ 원소의 성질: 바깥쪽 전자 껍질이 전자로 빈틈없이 완벽하게 꽉 차 있어서 외부에서 전기나 자기장으로 방해하고 흔들어도 흔들리지 않고 양자역학적 상태를 아주 일정하게 유지하는 뛰어난 안정성이 있습니다.\n\n■ 쉬운 용도 풀이: 미래의 초고속 컴퓨터인 양자 컴퓨터 중에서도 가장 정확도가 높다고 칭찬받는 '이온 트랩형 양자 컴퓨터'의 핵심 두뇌 역할을 해요. 레이저 빔을 이용해 이터음 원자의 전자를 하나 떼어내 이온으로 만든 뒤 공중에 둥둥 띄워 가두고, 흔들림 없는 완벽한 규칙성을 이용해 양자 계산을 수행하는 정보의 최소 단위인 '큐비트'로 맹활약 중입니다." 
+      },
+      Lu: { 
+        name: "루테튬", eng: "Lutetium", symbol: "Lu", num: 71, mass: 174.97, config: "[\\mathrm{Xe}]\\,4\\mathrm{f}^{14} 5\\mathrm{d}^1 6\\mathrm{s}^2", moment: "0\\,\\mu_B", volumetric: "0 (자석에 붙지 않음)", transition: "없음", tn: 0, tc: 0, specificMag: "paramagnetic", shells: [2, 8, 18, 32, 9, 2],
+        useTitle: "암세포의 위치를 찾아내는 번쩍이는 섬광 레이더", 
+        useDesc: "■ 원소의 성질: 눈에 보이지 않는 고에너지 방사선(감마선) 입자와 부딪히는 순간, 10억 분의 1초라는 엄청나게 짧은 찰나에 반응하여 스스로 번쩍하고 빛(섬광)을 만들어내는 극도의 민감성을 가지고 있습니다.\n\n■ 쉬운 용도 풀이: 병원에서 암 환자가 암세포가 어디 어디 퍼졌는지 정밀 검사할 때 쓰는 커다란 거동 기계인 PET(양전자 방출 단층촬영) 스캐너 안의 핵심 감지 센서예요. 우리 몸속 암세포가 내뿜는 아주 미세한 방사선 신호를 루테튬 결정이 쾅! 맞아서 빛으로 바꾸어 주면, 컴퓨터가 그걸 받아 암세포의 정확한 위치를 화면에 선명하게 점으로 그려내어 의사 선생님이 치료할 수 있도록 도와준답니다." 
+      }
+    };
+
+    let currentElement = "La";
+    let currentTemp = 298; 
+    let visualMode = "bohr"; 
+
+    const mainCanvas = document.getElementById("main-canvas");
+    const mainCtx = mainCanvas.getContext("2d");
+    const useCanvas = document.getElementById("use-canvas");
+    const useCtx = useCanvas.getContext("2d");
+
+    let animationFrameId;
+    let animTime = 0;
+
+    window.onload = function() {
+      buildElementButtons();
+      selectElement("La");
+      animate();
+    };
+
+    function buildElementButtons() {
+      const grid = document.getElementById("button-grid");
+      Object.keys(lanthanoidData).forEach(key => {
+        const data = lanthanoidData[key];
+        const btn = document.createElement("button");
+        btn.className = "el-btn";
+        btn.id = "btn-" + key;
+        btn.onclick = () => selectElement(key);
+        btn.innerHTML = `${data.symbol} <span style="font-size:0.85rem; font-weight:bold; color:var(--accent-neon);">${data.num}</span><span>${data.name}</span>`;
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectElement(key) {
+      currentElement = key;
+      document.querySelectorAll(".el-btn").forEach(btn => btn.classList.remove("active"));
+      document.getElementById("btn-" + key).classList.add("active");
+
+      const data = lanthanoidData[key];
+      document.getElementById("info-names").innerText = `${data.name} (${data.eng})`;
+      document.getElementById("info-symbol-num").innerText = `${data.symbol} / ${data.num}번`;
+      document.getElementById("info-weight").innerText = `${data.mass} amu`;
+      document.getElementById("info-electron-config").innerHTML = `\\(${data.config}\\)`;
+      document.getElementById("info-magnetic-moment").innerHTML = `\\(${data.moment}\\)`;
+      document.getElementById("info-volumetric-moment").innerText = data.volumetric;
+      document.getElementById("info-transition-temp").innerText = data.transition;
+      document.getElementById("use-title").innerText = data.useTitle;
+      document.getElementById("use-desc").innerText = data.useDesc;
+
+      evaluateCurrentMagnetism();
+      if (window.MathJax) { MathJax.typesetPromise(); }
+    }
+
+    function updateTemperature(val) {
+      currentTemp = parseInt(val);
+      const celsius = (currentTemp - 273.15).toFixed(1);
+      document.getElementById("temp-display").innerText = `${currentTemp} K (${celsius} °C)`;
+      evaluateCurrentMagnetism();
+    }
+
+    function evaluateCurrentMagnetism() {
+      const data = lanthanoidData[currentElement];
+      const target = document.getElementById("info-current-magnetism");
+
+      if (data.tn === 0 && data.tc === 0) {
+        target.innerText = data.magType || "상자성 (온도 무관)";
+        target.style.color = "#94a3b8";
+        return;
+      }
+      if (data.tc > 0 && data.tn === 0) {
+        if (currentTemp < data.tc) {
+          target.innerText = "강자성 (Ferromagnetic, 자석 상태)";
+          target.style.color = "#ff4a4a";
+        } else {
+          target.innerText = "상자성 (Paramagnetic, 열적 무작위)";
+          target.style.color = "#00f3ff";
+        }
+        return;
+      }
+      if (currentTemp >= data.tn) {
+        target.innerText = "상자성 (Paramagnetic, 스핀 무질서)";
+        target.style.color = "#00f3ff";
+      } else if (currentTemp < data.tn && currentTemp >= data.tc) {
+        if (data.specificMag === "helical" || data.specificMag === "complex" || data.specificMag === "ho-helical") {
+          target.innerText = "나선형 반강자성 (Helical AFM)";
+          target.style.color = "#ffae00";
+        } else if (data.specificMag === "sinusoidal") {
+          target.innerText = "사인파 종방향 반강자성 (Sinusoidal)";
+          target.style.color = "#da70d6";
+        } else {
+          target.innerText = "반강자성 (Antiferromagnetic, 상쇄 정렬)";
+          target.style.color = "#38bdf8";
+        }
+      } else if (currentTemp < data.tc) {
+        if (data.specificMag === "ho-helical" || data.specificMag === "sinusoidal") {
+          target.innerText = "원추형/위상변조 강자성 (Conical)";
+        } else {
+          target.innerText = "강자성 (Ferromagnetic, 거대 자화 발생)";
+        }
+        target.style.color = "#ff4a4a";
+      }
+    }
+
+    function toggleVisualMode() {
+      const btn = document.getElementById("toggle-visual-btn");
+      const title = document.getElementById("visual-panel-title");
+      if (visualMode === "bohr") {
+        visualMode = "moment";
+        btn.innerText = "보어 모형 보기";
+        title.innerText = "🔮 양자역학적 자기모멘트 상전이 비주얼";
+      } else {
+        visualMode = "bohr";
+        btn.innerText = "자기모멘트 스핀 보기";
+        title.innerText = "⚛️ 실시간 보어 원자 모형";
+      }
+    }
+
+    function openModal(type) {
+      const modal = document.getElementById("help-modal");
+      const title = document.getElementById("modal-title");
+      const body = document.getElementById("modal-body");
+
+      if (type === 'curie') {
+        title.innerText = "🌡️ 퀴리 온도 (Curie Temperature, Tc)";
+        body.innerHTML = "쉽게 말해 <b>'강력한 자석이 힘을 잃고 일반 돌덩이가 되는 경계 온도'</b>예요.<br><br>원자 속 자석 스핀들이 한 방향으로 나란히 뭉쳐있다가(강자성), 주변 온도가 퀴리 온도를 넘어가면 열에너지 때문에 스핀들이 사방으로 미친 듯이 흔들리며 무작위로 섞여버려 자석의 성질을 상실(상자성)하게 됩니다. 즉, 물질이 강자성 자석 성질을 유지하려면 퀴리 온도보다 무조건 낮아야 해요!";
+      } else if (type === 'neel') {
+        title.innerText = "❄️ 네엘 온도 (Néel Temperature, TN)";
+        body.innerHTML = "쉽게 말해 <b>'이웃한 스핀들이 청개구리처럼 서로 완전 반대로 정렬해 자성이 숨어버리는 경계 온도'</b>예요.<br><br>네엘 온도보다 온도가 낮아지면 스핀들이 서로 마주 보거나 지그재그(위-아래-위-아래)로 완벽하게 엇갈려 서서 자력을 서로 꽁꽁 상쇄시켜 버려요(반강자성). 그러다가 온도가 네엘 온도 위로 올라가면 이 규칙적인 청개구리 배열마저 풀리며 완전히 무질서한 상태(상자성)로 변하게 됩니다.";
+      }
+      modal.style.display = "flex";
+    }
+
+    function closeModal() { document.getElementById("help-modal").style.display = "none"; }
+
+    function animate() {
+      animTime += 0.02;
+      mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+      if (visualMode === "bohr") {
+        drawBohrModel(lanthanoidData[currentElement]);
+      } else {
+        drawMagneticMoments(lanthanoidData[currentElement]);
+      }
+      drawUseIllustration(currentElement);
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    function drawBohrModel(data) {
+      const cx = mainCanvas.width / 2;
+      const cy = mainCanvas.height / 2;
+      const elementHue = (data.num - 57) * 24; 
+      
+      const coreGlow = mainCtx.createRadialGradient(cx, cy, 2, cx, cy, 28);
+      coreGlow.addColorStop(0, '#ffffff');
+      coreGlow.addColorStop(0.3, `hsla(${elementHue}, 100%, 55%, 0.95)`);
+      coreGlow.addColorStop(1, 'transparent');
+      
+      mainCtx.fillStyle = coreGlow;
+      mainCtx.beginPath(); mainCtx.arc(cx, cy, 28, 0, Math.PI * 2); mainCtx.fill();
+
+      mainCtx.textAlign = "center"; mainCtx.textBaseline = "middle";
+      mainCtx.fillStyle = "#ffffff"; mainCtx.font = "bold 20px Arial"; 
+      mainCtx.fillText(data.symbol, cx, cy - 6);
+
+      mainCtx.font = "bold 11px Arial"; mainCtx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      mainCtx.fillText(`+${data.num}`, cx, cy + 12);
+
+      const baseRadius = 48;
+      const radiusStep = 28;
+
+      // 데이터 패키지에 선언된 고유 전자 껍질 수를 가져옵니다. 
+      const shells = data.shells;
+
+      shells.forEach((eCount, idx) => {
+        const radius = baseRadius + (idx * radiusStep);
+        
+        mainCtx.strokeStyle = "rgba(0, 243, 255, 0.12)";
+        mainCtx.lineWidth = 1;
+        mainCtx.setLineDash([4, 4]);
+        mainCtx.beginPath(); mainCtx.arc(cx, cy, radius, 0, Math.PI * 2); mainCtx.stroke();
+        mainCtx.setLineDash([]); 
+
+        // 안쪽 껍질일수록 빠르게 공전하도록 유도물리학적 속도 매핑
+        const speed = (6 - idx) * 0.25;
+
+        for (let i = 0; i < eCount; i++) {
+          const startAngle = (Math.PI * 2 / eCount) * i;
+          const currentAngle = startAngle + (animTime * speed);
+          const ex = cx + Math.cos(currentAngle) * radius;
+          const ey = cy + Math.sin(currentAngle) * radius;
+
+          mainCtx.shadowBlur = 8;
+          mainCtx.shadowColor = "rgba(0, 243, 255, 1)";
+          mainCtx.fillStyle = "#ffffff";
+          mainCtx.beginPath(); mainCtx.arc(ex, ey, 3.5, 0, Math.PI * 2); mainCtx.fill();
+          mainCtx.shadowBlur = 0; 
+        }
+      });
+    }
+
+    function drawMagneticMoments(data) {
+      const w = mainCanvas.width; const h = mainCanvas.height;
+      mainCtx.save(); mainCtx.translate(w / 2, h / 2);
+
+      const rows = 5; const cols = 5; const spacing = 45;
+      let randomness = 0; let phase = "paramagnetic";
+
+      if (data.tn === 0 && data.tc === 0) { phase = "paramagnetic"; randomness = 1.0; } 
+      else if (data.tn > 0 && currentTemp >= data.tn) { phase = "paramagnetic"; randomness = 1.0; } 
+      else if (data.tc > 0 && data.tn === 0 && currentTemp >= data.tc) { phase = "paramagnetic"; randomness = 1.0; } 
+      else {
+        const activeLimit = data.tn > 0 ? data.tn : data.tc;
+        randomness = currentTemp / activeLimit;
+        if (data.tn > 0 && currentTemp < data.tn && currentTemp >= data.tc) {
+          phase = (data.specificMag === "helical" || data.specificMag === "complex" || data.specificMag === "ho-helical") ? "helical" : 
+                  (data.specificMag === "sinusoidal") ? "sinusoidal" : "afm";
+        } else { phase = "ferro"; }
+      }
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = (c - (cols - 1) / 2) * spacing; const y = (r - (rows - 1) / 2) * spacing;
+          let baseAngle = 0; let lengthFactor = 1.0;
+
+          if (phase === "ferro") { baseAngle = -Math.PI / 2; } 
+          else if (phase === "afm") { baseAngle = ((r + c) % 2 === 0) ? -Math.PI / 2 : Math.PI / 2; } 
+          else if (phase === "helical") { baseAngle = (c * 0.7) + animTime; } 
+          else if (phase === "sinusoidal") { baseAngle = -Math.PI / 2; lengthFactor = Math.sin((c * 0.9) + animTime); } 
+          else { baseAngle = 0; lengthFactor = 1.0; }
+
+          const noise = (Math.sin(animTime * 5 + (r * 13) + (c * 37))) * Math.PI * randomness;
+          let finalAngle = baseAngle;
+          if (phase === "paramagnetic") { finalAngle = animTime * 2 + (r * 10) + (c * 20); } 
+          else { finalAngle += noise; }
+
+          const arrowLen = 16 * (1.1 - randomness * 0.3) * Math.abs(lengthFactor);
+          const endX = x + Math.cos(finalAngle) * arrowLen; const endY = y + Math.sin(finalAngle) * arrowLen;
+
+          if (phase === "ferro") mainCtx.strokeStyle = `hsl(0, 100%, ${70 - randomness*20}%)`;
+          else if (phase === "helical") mainCtx.strokeStyle = `hsl(40, 100%, 65%)`;
+          else if (phase === "sinusoidal") mainCtx.strokeStyle = `hsl(300, 90%, 70%)`;
+          else if (phase === "afm") mainCtx.strokeStyle = `hsl(200, 100%, 65%)`;
+          else mainCtx.strokeStyle = "rgba(0, 243, 255, 0.4)";
+
+          mainCtx.lineWidth = 2.5; mainCtx.beginPath(); mainCtx.moveTo(x, y); mainCtx.lineTo(endX, endY); mainCtx.stroke();
+          mainCtx.fillStyle = mainCtx.strokeStyle; mainCtx.beginPath(); mainCtx.arc(endX, endY, 3.5, 0, Math.PI * 2); mainCtx.fill();
+        }
+      }
+      mainCtx.restore();
+    }
+
+    function drawUseIllustration(key) {
+      useCtx.clearRect(0, 0, useCanvas.width, useCanvas.height); useCtx.save();
+      const cx = useCanvas.width / 2; const cy = useCanvas.height / 2; const t = animTime;
+
+      switch(key) {
+        case "La":
+          useCtx.fillStyle = "rgba(0, 243, 255, 0.15)"; useCtx.strokeStyle = "var(--accent-neon)"; useCtx.lineWidth = 2;
+          useCtx.beginPath(); useCtx.arc(cx - 30, cy, 50, -Math.PI/4, Math.PI/4); useCtx.arc(cx + 30, cy, 50, Math.PI - Math.PI/4, Math.PI + Math.PI/4); useCtx.closePath(); useCtx.fill(); useCtx.stroke();
+          let angleOffset = Math.sin(t * 2.5) * 12; useCtx.strokeStyle = "#ffffff"; useCtx.lineWidth = 2.5; useCtx.shadowBlur = 10; useCtx.shadowColor = "#ffffff";
+          useCtx.beginPath(); useCtx.moveTo(5, cy - 18 + angleOffset); useCtx.lineTo(cx, cy); useCtx.lineTo(115, cy + 8 - angleOffset * 0.5); useCtx.stroke(); useCtx.shadowBlur = 0;
+          break;
+        case "Ce":
+          useCtx.strokeStyle = "#888"; useCtx.lineWidth = 3; useCtx.beginPath(); useCtx.arc(cx - 10, cy + 10, 25, 0, Math.PI*2); useCtx.stroke();
+          useCtx.fillStyle = `rgba(255, ${100 + Math.floor(Math.sin(t*10)*100)}, 0, 0.9)`;
+          for(let i=0; i<8; i++) {
+            const pX = cx + 10 + Math.cos(i + t*3) * (20 + (t*30 % 40)); const pY = cy - 10 + Math.sin(-i + t*3) * (20 + (t*30 % 40));
+            useCtx.beginPath(); useCtx.arc(pX, pY, 3 - (i%2), 0, Math.PI*2); useCtx.fill();
+          }
+          break;
+        case "Pr":
+          useCtx.strokeStyle = "#22c55e"; useCtx.lineWidth = 3; useCtx.strokeRect(15, cy - 15, 35, 30); useCtx.strokeRect(70, cy - 15, 35, 30);
+          useCtx.beginPath(); useCtx.moveTo(50, cy); useCtx.lineTo(70, cy); useCtx.stroke();
+          let waveX = (t * 55) % 65; useCtx.strokeStyle = "rgba(234, 179, 8, 0.7)"; useCtx.lineWidth = 2; useCtx.beginPath();
+          useCtx.moveTo(waveX, cy - 8); useCtx.lineTo(waveX + 15, cy - 8); useCtx.moveTo((waveX + 30) % 65, cy + 8); useCtx.lineTo(((waveX + 30) % 65) + 15, cy + 8); useCtx.stroke();
+          useCtx.fillStyle = `rgba(239, 68, 68, ${0.35 + Math.sin(t*6)*0.2})`; useCtx.fillRect(17, cy - 13, 31, 26);
+          break;
+        case "Nd":
+          useCtx.lineWidth = 8; useCtx.lineCap = "round"; useCtx.strokeStyle = "#ef4444";
+          useCtx.beginPath(); useCtx.arc(cx, cy, 25, Math.PI, Math.PI*1.5); useCtx.lineTo(cx + 15, cy - 25); useCtx.stroke(); useCtx.strokeStyle = "#3b82f6";
+          useCtx.beginPath(); useCtx.arc(cx, cy, 25, Math.PI*1.5, Math.PI*2); useCtx.lineTo(cx + 15, cy + 25); useCtx.stroke(); useCtx.strokeStyle = "rgba(0, 243, 255, 0.4)"; useCtx.lineWidth = 1;
+          const rPulse = 15 + (t * 25 % 30); useCtx.beginPath(); useCtx.arc(cx + 15, cy, rPulse, -Math.PI/2, Math.PI/2); useCtx.stroke();
+          break;
+        case "Pm":
+          useCtx.strokeStyle = "#a855f7"; useCtx.lineWidth = 3; useCtx.strokeRect(30, 25, 60, 70);
+          useCtx.fillStyle = "rgba(168, 85, 247, 0.3)"; useCtx.beginPath(); useCtx.arc(cx, cy, 15 + Math.sin(t*4)*3, 0, Math.PI*2); useCtx.fill();
+          useCtx.strokeStyle = "#fff"; useCtx.lineWidth = 1.5; useCtx.beginPath(); useCtx.moveTo(40, cy); useCtx.lineTo(20, cy + Math.sin(t*5)*10); useCtx.moveTo(80, cy); useCtx.lineTo(100, cy + Math.cos(t*5)*10); useCtx.stroke();
+          break;
+        case "Sm":
+          useCtx.strokeStyle = "#f97316"; useCtx.lineWidth = 3; useCtx.beginPath(); useCtx.moveTo(cx - 25, cy - 35); useCtx.quadraticCurveTo(cx, cy - 30, cx + 25, cy - 35); useCtx.lineTo(cx + 20, cy + 15); useCtx.quadraticCurveTo(cx, cy + 40, cx - 20, cy + 15); useCtx.closePath(); useCtx.stroke();
+          useCtx.fillStyle = "#ef4444"; const eX = cx + 35 - (t*40 % 50); if (eX > cx + 15) { useCtx.beginPath(); useCtx.arc(eX, cy, 4, 0, Math.PI*2); useCtx.fill(); }
+          break;
+        case "Eu":
+          const redGlow = useCtx.createRadialGradient(cx, cy, 2, cx, cy, 40 + Math.sin(t*6)*5); redGlow.addColorStop(0, '#ffffff'); redGlow.addColorStop(0.2, '#ff1e1e'); redGlow.addColorStop(1, 'transparent');
+          useCtx.fillStyle = redGlow; useCtx.beginPath(); useCtx.arc(cx, cy, 45, 0, Math.PI*2); useCtx.fill();
+          break;
+        case "Gd":
+          useCtx.strokeStyle = "rgba(255,255,255,0.15)"; useCtx.lineWidth = 8; useCtx.beginPath(); useCtx.arc(cx, cy, 45, 0, Math.PI*2); useCtx.stroke();
+          useCtx.strokeStyle = "hsl(0, 100%, 60%)"; useCtx.lineWidth = 2; useCtx.beginPath(); const scanY = cy + Math.sin(t * 3.5) * 40; useCtx.moveTo(cx - 40, scanY); useCtx.lineTo(cx + 40, scanY); useCtx.stroke();
+          break;
+        case "Tb":
+          useCtx.strokeStyle = "#fff"; useCtx.lineWidth = 4; useCtx.beginPath(); useCtx.moveTo(cx, cy); useCtx.lineTo(cx, 110); useCtx.stroke();
+          useCtx.save(); useCtx.translate(cx, cy); useCtx.rotate(t * 2); useCtx.fillStyle = "rgba(255,255,255,0.8)";
+          for(let i=0; i<3; i++) { useCtx.rotate((Math.PI * 2) / 3); useCtx.beginPath(); useCtx.moveTo(0, 0); useCtx.quadraticCurveTo(12, -20, 4, -45); useCtx.quadraticCurveTo(-4, -20, 0, 0); useCtx.fill(); } useCtx.restore();
+          break;
+        case "Dy":
+          useCtx.strokeStyle = "#3b82f6"; useCtx.lineWidth = 2; useCtx.strokeRect(cx - 30, cy - 30, 60, 60);
+          useCtx.save(); useCtx.translate(cx, cy); useCtx.rotate(-t * 4); useCtx.fillStyle = "#e2e8f0"; useCtx.fillRect(-22, -8, 44, 16);
+          useCtx.fillStyle = "var(--accent-neon)"; useCtx.fillRect(-22, -8, 8, 16); useCtx.fillStyle = "#ef4444"; useCtx.fillRect(14, -8, 8, 16); useCtx.restore();
+          break;
+        case "Ho":
+          useCtx.strokeStyle = "rgba(255,255,255,0.08)"; useCtx.lineWidth = 1;
+          for(let i=1; i<4; i++) { useCtx.beginPath(); useCtx.moveTo(i*30, 10); useCtx.lineTo(i*30, 110); useCtx.stroke(); useCtx.beginPath(); useCtx.moveTo(10, i*30); useCtx.lineTo(110, i*30); useCtx.stroke(); }
+          let atomPulse = 6 + Math.sin(t * 4) * 1.5; useCtx.shadowBlur = 12; useCtx.shadowColor = "var(--accent-neon)"; useCtx.fillStyle = "var(--accent-neon)"; useCtx.beginPath(); useCtx.arc(cx, cy, atomPulse, 0, Math.PI*2); useCtx.fill(); useCtx.shadowBlur = 0;
+          let hoAngle = Math.sin(t * 3.5) * (Math.PI / 3.5) - (Math.PI / 2); let arrowLenHo = 24; let ax = cx + Math.cos(hoAngle) * arrowLenHo; let ay = cy + Math.sin(hoAngle) * arrowLenHo;
+          useCtx.strokeStyle = "#eab308"; useCtx.lineWidth = 3; useCtx.beginPath(); useCtx.moveTo(cx, cy); useCtx.lineTo(ax, ay); useCtx.stroke(); useCtx.fillStyle = "#eab308"; useCtx.beginPath(); useCtx.arc(ax, ay, 4, 0, Math.PI*2); useCtx.fill();
+          break;
+        case "Er":
+          useCtx.strokeStyle = "#475569"; useCtx.lineWidth = 12; useCtx.beginPath(); useCtx.moveTo(5, cy); useCtx.lineTo(115, cy); useCtx.stroke(); useCtx.strokeStyle = "#0f172a"; useCtx.lineWidth = 8; useCtx.beginPath(); useCtx.moveTo(5, cy); useCtx.lineTo(115, cy); useCtx.stroke();
+          useCtx.strokeStyle = "#ec4899"; useCtx.lineWidth = 2.5; useCtx.beginPath();
+          for (let x = 5; x <= 115; x++) { let amp = 2 + (x - 5) * 0.13; let y = cy + Math.sin((x * 0.16) - (t * 8.5)) * amp; if (x === 5) useCtx.moveTo(x, y); else useCtx.lineTo(x, y); } useCtx.stroke();
+          useCtx.fillStyle = "rgba(0, 243, 255, 0.8)";
+          for (let i = 0; i < 4; i++) { let px = 22 + i * 25 + (Math.sin(t + i) * 4); let py = cy + (Math.cos(t * 2 + i) * 2); useCtx.beginPath(); useCtx.arc(px, py, 2, 0, Math.PI * 2); useCtx.fill(); }
+          break;
+        case "Tm":
+          useCtx.fillStyle = "#334155"; useCtx.fillRect(15, cy - 20, 25, 40); useCtx.strokeStyle = "#22d3ee"; useCtx.lineWidth = 2; useCtx.beginPath();
+          for(let i=45; i<105; i+=5) { useCtx.moveTo(i, cy - 15 + Math.sin(t*8 + i*0.5)*4); useCtx.lineTo(i+3, cy - 15 + Math.sin(t*8 + (i+3)*0.5)*4); } useCtx.stroke();
+          useCtx.fillStyle = "rgba(34, 211, 238, 0.2)"; useCtx.fillRect(75, cy - 25, 30, 50); useCtx.fillStyle = "#fff"; useCtx.fillRect(87, cy - 15, 6, 30);
+          break;
+        case "Yb":
+          useCtx.fillStyle = "#475569"; useCtx.fillRect(20, 25, 80, 12); useCtx.fillRect(20, 83, 80, 12); useCtx.strokeStyle = "rgba(239, 68, 68, 0.4)"; useCtx.lineWidth = 1; useCtx.beginPath(); useCtx.moveTo(cx, 15); useCtx.lineTo(cx, 105); useCtx.moveTo(15, cy); useCtx.lineTo(105, cy); useCtx.stroke();
+          useCtx.shadowBlur = 12; useCtx.shadowColor = "#3b82f6"; useCtx.fillStyle = "#60a5fa"; useCtx.beginPath(); useCtx.arc(cx, cy + Math.sin(t * 7) * 2, 5, 0, Math.PI * 2); useCtx.fill(); useCtx.shadowBlur = 0;
+          break;
+        case "Lu":
+          useCtx.strokeStyle = "#e2e8f0"; useCtx.lineWidth = 2; useCtx.beginPath(); useCtx.arc(cx, cy, 40, 0, Math.PI*2); useCtx.stroke();
+          useCtx.fillStyle = "#eab308"; const pOffset = (t * 50) % 40; useCtx.beginPath(); useCtx.arc(cx - pOffset, cy, 3.5, 0, Math.PI*2); useCtx.arc(cx + pOffset, cy, 3.5, 0, Math.PI*2); useCtx.fill();
+          break;
+      }
+      useCtx.restore();
+    }
+  </script>
+</body>
+</html>

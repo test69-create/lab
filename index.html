@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>영재 탐구 산출물 아카이브</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#5b6472;
+      --line:#d7deea;
+      --accent:#2563eb;
+      --accent-strong:#1d4ed8;
+      --soft:#eaf2ff;
+      --shadow:0 10px 30px rgba(31, 41, 55, 0.08);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      background:linear-gradient(180deg,#f8fbff 0%, #f4f6fb 100%);
+      color:var(--text);
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.65;
+    }
+
+    body{
+      min-height:100vh;
+    }
+
+    .wrap{
+      width:min(1100px, 92vw);
+      margin:0 auto;
+      padding:48px 0 72px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,#eaf2ff 0%, #ffffff 100%);
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:40px 28px;
+      box-shadow:var(--shadow);
+      margin-bottom:30px;
+    }
+
+    .hero .label{
+      display:inline-block;
+      font-size:1rem;
+      font-weight:700;
+      color:var(--accent-strong);
+      background:#dbeafe;
+      border-radius:999px;
+      padding:8px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 12px;
+      font-size:clamp(2rem, 4.8vw, 3.6rem);
+      line-height:1.15;
+      letter-spacing:-0.02em;
+    }
+
+    .hero p{
+      margin:0;
+      font-size:clamp(1.05rem, 2.2vw, 1.35rem);
+      color:var(--muted);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+      gap:24px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:26px;
+      display:flex;
+      flex-direction:column;
+      min-height:100%;
+    }
+
+    .card-top{
+      margin-bottom:18px;
+    }
+
+    .card-kicker{
+      display:inline-block;
+      font-size:0.98rem;
+      font-weight:700;
+      color:#0f766e;
+      background:#e6fffb;
+      padding:7px 12px;
+      border-radius:999px;
+      margin-bottom:12px;
+    }
+
+    .card h2{
+      margin:0;
+      font-size:clamp(1.5rem, 3.5vw, 2rem);
+      line-height:1.2;
+      letter-spacing:-0.01em;
+    }
+
+    .sections{
+      display:grid;
+      gap:14px;
+      margin:6px 0 24px;
+    }
+
+    .section{
+      background:var(--bg);
+      border:1px solid #e4e9f2;
+      border-radius:16px;
+      padding:16px 16px 15px;
+    }
+
+    .section-title{
+      margin:0 0 6px;
+      font-size:1.02rem;
+      font-weight:800;
+      color:var(--accent-strong);
+    }
+
+    .section p{
+      margin:0;
+      font-size:1.06rem;
+      color:var(--text);
+    }
+
+    .actions{
+      margin-top:auto;
+      padding-top:4px;
+    }
+
+    .btn{
+      display:inline-block;
+      width:100%;
+      text-align:center;
+      text-decoration:none;
+      background:var(--accent);
+      color:#fff;
+      font-size:1.08rem;
+      font-weight:800;
+      padding:15px 18px;
+      border-radius:16px;
+      transition:transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      box-shadow:0 8px 20px rgba(37,99,235,0.22);
+    }
+
+    .btn:hover,
+    .btn:focus{
+      background:var(--accent-strong);
+      transform:translateY(-1px);
+      outline:none;
+    }
+
+    .footer{
+      text-align:center;
+      color:var(--muted);
+      font-size:0.98rem;
+      margin-top:26px;
+      padding:6px 6px 0;
+    }
+
+    @media (max-width:640px){
+      .wrap{
+        padding:28px 0 48px;
+      }
+
+      .hero{
+        padding:28px 20px;
+        border-radius:22px;
+      }
+
+      .card{
+        padding:20px;
+        border-radius:20px;
+      }
+
+      .section{
+        padding:14px;
+      }
+
+      .btn{
+        padding:14px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="label">영재 탐구 산출물 아카이브</div>
+      <h1>탐구의 질문과 생각의 흔적을 한눈에 살펴보는 대문 페이지</h1>
+      <p>아래 카드에서 각 산출물의 핵심 질문, 고민의 과정, 그리고 아직 열어 둔 결론을 읽고 바로 산출물을 열어볼 수 있습니다.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="card-top">
+          <div class="card-kicker">탐구 카드</div>
+          <h2>희토류 자석</h2>
+        </div>
+
+        <div class="sections">
+          <div class="section">
+            <div class="section-title">탐구 질문</div>
+            <p>희토류 자석은 왜 일반 자석보다 훨씬 강한 힘을 보이며, 그 성질은 어떤 재료적 특징에서 비롯되는지 궁금했다.</p>
+          </div>
+
+          <div class="section">
+            <div class="section-title">사고 흔적</div>
+            <p>자석의 세기만 비교하는 데서 멈추지 않고, 원소 조성·배열·활용 분야를 함께 살펴보며 강한 자력이 실제 기술에서 어떤 의미를 가지는지 연결해 보았다.</p>
+          </div>
+
+          <div class="section">
+            <div class="section-title">열린 결론</div>
+            <p>희토류 자석은 매우 강력하고 유용하지만, 자원 확보와 대체 소재 문제까지 함께 생각해야 하므로 앞으로의 연구 방향이 더 중요하다는 결론에 열어 두고 있다.</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a href="test.html" target="_blank" rel="noopener" class="btn">산출물 열기</a>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer">닉네임 기반 아카이브 페이지 · 교사가 문장을 쉽게 수정할 수 있도록 예시 문장으로 구성했습니다.</div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>네오디뮴 자석 첨가 원소와 온도에 따른 자성·모터 성능 탐구</title>
+<style>
+  :root{
+    --bg1:#090914;
+    --bg2:#14142a;
+    --panel:#17172fdd;
+    --line:#8ff0ff;
+    --line2:#ff9df5;
+    --line3:#c8ff7a;
+    --text:#f4f7ff;
+    --muted:#cbd5ff;
+    --accent:#8c7bff;
+    --good:#8cffb5;
+    --warn:#ffd36b;
+    --bad:#ff7d9f;
+    --grid:#3c436d;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;padding:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 20% 20%, #1d245a 0%, transparent 28%),
+      radial-gradient(circle at 80% 18%, #4f1f62 0%, transparent 24%),
+      radial-gradient(circle at 50% 80%, #0f5b65 0%, transparent 30%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:1400px;
+    margin:0 auto;
+    padding:18px;
+  }
+  h1{
+    margin:0 0 10px 0;
+    font-size:clamp(1.7rem, 3vw, 3rem);
+    line-height:1.15;
+    letter-spacing:-0.02em;
+    text-shadow:0 0 18px #8ff0ff44;
+  }
+  .subtitle{
+    font-size:clamp(1rem, 1.5vw, 1.25rem);
+    color:var(--muted);
+    margin-bottom:16px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns: 360px 1fr;
+    gap:16px;
+  }
+  .panel{
+    background:linear-gradient(180deg, #1a1b37ee, #111325ee);
+    border:1px solid #7280ff33;
+    border-radius:20px;
+    padding:16px;
+    box-shadow:0 10px 30px #00000040, inset 0 0 30px #9b8cff0f;
+    backdrop-filter: blur(4px);
+  }
+  .controls h2,.section h2{
+    margin:0 0 14px 0;
+    font-size:clamp(1.15rem, 2vw, 1.6rem);
+  }
+  .control{
+    margin:16px 0 20px 0;
+    padding:14px;
+    border-radius:16px;
+    background:#ffffff08;
+    border:1px solid #ffffff12;
+  }
+  .row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  label{
+    font-size:clamp(1rem, 1.5vw, 1.2rem);
+    font-weight:700;
+  }
+  .value{
+    font-size:clamp(1rem, 1.6vw, 1.25rem);
+    font-weight:800;
+    color:#fff7ad;
+    text-shadow:0 0 10px #ffe48a44;
+  }
+  input[type=range]{
+    width:100%;
+    margin-top:10px;
+    accent-color:#8ff0ff;
+    height:28px;
+    background:transparent;
+  }
+  .btns{
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;
+  }
+  button{
+    border:none;
+    border-radius:14px;
+    padding:12px 16px;
+    font-size:clamp(1rem, 1.5vw, 1.1rem);
+    font-weight:800;
+    cursor:pointer;
+    color:#07121a;
+    background:linear-gradient(90deg, #8ff0ff, #d3a5ff);
+    box-shadow:0 8px 18px #7be9ff25;
+  }
+  button.secondary{
+    background:linear-gradient(90deg, #d1d9ff, #9cffc9);
+  }
+  .small{
+    color:var(--muted);
+    font-size:clamp(.95rem, 1.3vw, 1.05rem);
+    line-height:1.5;
+  }
+  .content{
+    display:grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap:16px;
+  }
+  .top-right{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:16px;
+    margin-bottom:16px;
+  }
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:10px;
+  }
+  .stat{
+    background:#ffffff08;
+    border:1px solid #ffffff10;
+    border-radius:16px;
+    padding:12px;
+  }
+  .stat .name{
+    font-size:clamp(.95rem, 1.2vw, 1.05rem);
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .stat .big{
+    font-size:clamp(1.25rem, 2.2vw, 1.9rem);
+    font-weight:900;
+  }
+  .badge{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:999px;
+    font-weight:800;
+    font-size:clamp(.9rem,1.2vw,1rem);
+    margin-top:6px;
+  }
+  .ferro{background:#8cffb526;color:#bfffd4;border:1px solid #8cffb555}
+  .para{background:#ffd36b26;color:#ffe29b;border:1px solid #ffd36b66}
+  .anti{background:#9fc3ff26;color:#d7e5ff;border:1px solid #9fc3ff55}
+  .riskLow{background:#8cffb526;color:#bfffd4}
+  .riskMid{background:#ffd36b26;color:#ffe29b}
+  .riskHigh{background:#ff7d9f26;color:#ffc0d0}
+  canvas{
+    width:100%;
+    height:auto;
+    display:block;
+    background:
+      linear-gradient(180deg, #0b1024, #101833 60%, #0b1024);
+    border-radius:16px;
+    border:1px solid #ffffff14;
+  }
+  .evBox{
+    position:relative;
+    overflow:hidden;
+    min-height:290px;
+    background:
+      radial-gradient(circle at 70% 20%, #6d3fff22 0%, transparent 25%),
+      radial-gradient(circle at 20% 15%, #32e9ff22 0%, transparent 20%),
+      linear-gradient(180deg, #0b1024, #111935 60%, #10142b);
+    border-radius:18px;
+    border:1px solid #ffffff14;
+  }
+  .legend{
+    display:flex; gap:14px; flex-wrap:wrap;
+    font-size:clamp(.95rem,1.2vw,1rem);
+    color:var(--muted);
+    margin-top:8px;
+  }
+  .legend span::before{
+    content:"";
+    width:14px;height:14px;display:inline-block;
+    border-radius:4px;margin-right:6px;vertical-align:-2px;
+  }
+  .l1::before{background:var(--line)}
+  .l2::before{background:var(--line2)}
+  .l3::before{background:var(--line3)}
+  .notes{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin-top:16px;
+  }
+  .concept{
+    line-height:1.6;
+    font-size:clamp(1rem,1.35vw,1.08rem);
+    color:#eef3ff;
+  }
+  .concept ul{margin:8px 0 0 1.2em;padding:0}
+  .concept li{margin:6px 0}
+  .phaseList{
+    display:grid;
+    gap:10px;
+  }
+  .phaseItem{
+    padding:12px;
+    border-radius:14px;
+    background:#ffffff08;
+    border:1px solid #ffffff12;
+  }
+  .phaseBar{
+    margin-top:8px;
+    height:14px;
+    border-radius:999px;
+    overflow:hidden;
+    background:#1a2142;
+    position:relative;
+  }
+  .phaseBar .seg{
+    height:100%; float:left;
+  }
+  .cursor{
+    position:absolute; top:-4px;
+    width:3px; height:22px; background:#fff;
+    box-shadow:0 0 12px #fff;
+  }
+  .footerNote{
+    margin-top:10px;
+    color:var(--muted);
+    font-size:clamp(.9rem,1.15vw,1rem);
+  }
+  @media (max-width: 1100px){
+    .grid{grid-template-columns:1fr}
+    .content{grid-template-columns:1fr}
+  }
+  @media (max-width: 780px){
+    .top-right{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .notes{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>신비한 자성 실험실: Dy·Tb 첨가, 온도, 그리고 전기자동차 모터</h1>
+  <div class="subtitle">슬라이더를 움직이며 네오디뮴 자석의 <b>보자력</b>, <b>잔류 자기</b>, <b>모터 성능</b>이 어떻게 달라지는지 탐구해 보세요.</div>
+
+  <div class="grid">
+    <div class="panel controls">
+      <h2>조작하기</h2>
+
+      <div class="control">
+        <div class="row">
+          <label for="dy">Dy 첨가 질량 분율</label>
+          <div class="value"><span id="dyVal">0.0</span>%</div>
+        </div>
+        <input id="dy" type="range" min="0" max="10" step="0.1" value="0">
+        <div class="small">Dy(디스프로슘)는 보자력을 크게 높여 <b>고온에서 자화가 쉽게 뒤집히지 않게</b> 도와줍니다. 대신 잔류 자기는 조금 감소합니다.</div>
+      </div>
+
+      <div class="control">
+        <div class="row">
+          <label for="tb">Tb 첨가 질량 분율</label>
+          <div class="value"><span id="tbVal">0.0</span>%</div>
+        </div>
+        <input id="tb" type="range" min="0" max="5" step="0.1" value="0">
+        <div class="small">Tb(터븀)는 Dy보다 <b>보자력 향상 효과가 더 강한 편</b>이지만, 잔류 자기 감소도 더 크게 나타날 수 있습니다.</div>
+      </div>
+
+      <div class="control">
+        <div class="row">
+          <label for="temp">온도</label>
+          <div class="value"><span id="tempVal">20</span> ℃</div>
+        </div>
+        <input id="temp" type="range" min="0" max="250" step="1" value="20">
+        <div class="small">온도가 올라가면 일반적으로 자석의 자화와 보자력은 약해집니다. Nd-Fe-B 자석은 이 범위에서 대체로 <b>강자성</b>이지만, 고온으로 갈수록 약해집니다.</div>
+      </div>
+
+      <div class="btns">
+        <button id="resetBtn">다시 시작</button>
+        <button id="presetHot" class="secondary">고온 모터 상황 보기</button>
+      </div>
+
+      <div class="panel" style="margin-top:16px;padding:14px;">
+        <h2 style="margin-bottom:8px;">확인할 개념</h2>
+        <div class="concept">
+          <ul>
+            <li><b>강자성</b>: 자화가 잘 되고 자성을 강하게 유지하는 상태</li>
+            <li><b>반강자성</b>: 이웃 자기모멘트가 반대 방향으로 배열되어 전체 자화가 작아지는 상태</li>
+            <li><b>상자성</b>: 외부 자기장이 있을 때만 약하게 정렬되는 상태</li>
+            <li>Dy, Tb는 단순히 “강한 자석 재료”라기보다, <b>Nd-Fe-B 격자 안에서 자기 이방성</b>을 높여 보자력을 키우는 역할이 중요합니다.</li>
+            <li>온도가 높아질수록 모터용 자석은 <b>잔류 자기와 보자력 감소</b> 때문에 성능 저하와 감자 위험이 커질 수 있습니다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="top-right">
+        <div class="panel section">
+          <h2>현재 자석 상태</h2>
+          <div class="stats">
+            <div class="stat">
+              <div class="name">잔류 자기 Br</div>
+              <div class="big" id="brText">1.33 T</div>
+            </div>
+            <div class="stat">
+              <div class="name">보자력 HcJ</div>
+              <div class="big" id="hcText">1000 kA/m</div>
+            </div>
+            <div class="stat">
+              <div class="name">예상 큐리 온도</div>
+              <div class="big" id="tcText">312 ℃</div>
+            </div>
+            <div class="stat">
+              <div class="name">감자 위험</div>
+              <div class="big"><span id="riskText" class="badge riskLow">낮음</span></div>
+            </div>
+          </div>
+          <div style="margin-top:12px;font-size:clamp(1rem,1.35vw,1.08rem);line-height:1.6;">
+            <b>Nd-Fe-B 자석의 현재 자성 상태:</b>
+            <span id="hostState" class="badge ferro">강자성</span>
+            <div class="small" id="hostExplain" style="margin-top:8px;">선택한 온도에서는 강자성이 유지됩니다. 하지만 온도가 올라가면 Br과 HcJ는 감소합니다.</div>
+          </div>
+        </div>
+
+        <div class="panel section">
+          <h2>전기자동차 모터 성능</h2>
+          <div class="stats">
+            <div class="stat">
+              <div class="name">토크 지수</div>
+              <div class="big" id="torqueText">98</div>
+            </div>
+            <div class="stat">
+              <div class="name">고온 안정성 지수</div>
+              <div class="big" id="heatText">100</div>
+            </div>
+            <div class="stat">
+              <div class="name">예상 최고속도</div>
+              <div class="big" id="speedText">154 km/h</div>
+            </div>
+            <div class="stat">
+              <div class="name">오르막 성능</div>
+              <div class="big" id="climbText">좋음</div>
+            </div>
+          </div>
+          <div class="small" style="margin-top:10px;">
+            단순화한 모형입니다. <b>토크</b>는 주로 잔류 자기와, <b>고온 안정성</b>은 보자력과 관련이 큽니다.
+          </div>
+        </div>
+      </div>
+
+      <div class="panel section">
+        <h2>전기자동차 주행 장면</h2>
+        <div class="evBox">
+          <canvas id="evCanvas" width="1000" height="360"></canvas>
+        </div>
+        <div class="footerNote" id="evNote">자석이 강하고 고온에서도 안정할수록 모터가 더 힘차고 안정적으로 전기자동차를 움직입니다.</div>
+      </div>
+
+      <div class="content" style="margin-top:16px;">
+        <div class="panel section">
+          <h2>온도에 따른 자석 특성 그래프</h2>
+          <canvas id="graphCanvas" width="900" height="520"></canvas>
+          <div class="legend">
+            <span class="l1">잔류 자기 Br (T)</span>
+            <span class="l2">보자력 HcJ (kA/m, 오른쪽 축)</span>
+            <span class="l3">현재 선택 온도</span>
+          </div>
+        </div>
+
+        <div class="panel section">
+          <h2>자성 상태 안내</h2>
+          <div class="phaseList">
+            <div class="phaseItem">
+              <div><b>Nd-Fe-B 자석</b> <span id="phaseHostBadge" class="badge ferro">강자성</span></div>
+              <div class="small">대략 큐리 온도 근처까지 강자성입니다. 선택 범위 0~250℃에서는 보통 강자성이 유지되지만 점점 약해집니다.</div>
+              <div class="phaseBar">
+                <div class="seg" style="width:89%;background:#8cffb566"></div>
+                <div class="seg" style="width:11%;background:#ffd36b66"></div>
+                <div class="cursor" id="hostCursor"></div>
+              </div>
+              <div class="small">왼쪽: 낮은 온도 / 오른쪽: 높은 온도(350℃)</div>
+            </div>
+
+            <div class="phaseItem">
+              <div><b>원소 Dy</b> <span id="phaseDyBadge" class="badge para">상자성</span></div>
+              <div class="small">원소 상태 Dy는 약 -188℃ 아래에서 강자성, 약 -94℃까지 반강자성, 그보다 높으면 상자성입니다. 그러나 자석에 첨가될 때는 <b>격자 안에서 보자력 향상</b>에 기여합니다.</div>
+              <div class="phaseBar">
+                <div class="seg" style="width:2.2%;background:#8cffb566"></div>
+                <div class="seg" style="width:14%;background:#9fc3ff66"></div>
+                <div class="seg" style="width:83.8%;background:#ffd36b66"></div>
+                <div class="cursor" id="dyCursor"></div>
+              </div>
+              <div class="small">강자성 → 반강자성 → 상자성</div>
+            </div>
+
+            <div class="phaseItem">
+              <div><b>원소 Tb</b> <span id="phaseTbBadge" class="badge para">상자성</span></div>
+              <div class="small">원소 상태 Tb는 약 -53℃ 아래에서 강자성, 그보다 높으면 상자성입니다. 자석에 첨가되면 <b>보자력 증가 효과가 특히 큰 편</b>입니다.</div>
+              <div class="phaseBar">
+                <div class="seg" style="width:20.6%;background:#8cffb566"></div>
+                <div class="seg" style="width:79.4%;background:#ffd36b66"></div>
+                <div class="cursor" id="tbCursor"></div>
+              </div>
+              <div class="small">강자성 → 상자성</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <div class="panel section">
+          <h2>관찰 포인트</h2>
+          <div class="concept" id="observationText">
+            Dy와 Tb를 늘리면 보자력은 올라가고, 잔류 자기는 조금 줄어듭니다. 즉, <b>더 뜨거운 환경에서 버티는 힘</b>과 <b>순간적으로 낼 수 있는 자속의 세기</b> 사이에 균형이 필요합니다.
+          </div>
+        </div>
+        <div class="panel section">
+          <h2>모형 설명</h2>
+          <div class="concept">
+            이 웹앱은 수업용 단순화 모형입니다.
+            <ul>
+              <li>Br: 온도 상승과 Dy/Tb 첨가에 따라 감소하도록 모델링</li>
+              <li>HcJ: 온도 상승으로 감소하지만 Dy/Tb 첨가로 크게 증가하도록 모델링</li>
+              <li>전기자동차 성능: Br과 HcJ를 바탕으로 토크·고온 안정성을 계산</li>
+              <li>축과 단위: Br는 T, HcJ는 kA/m, 온도는 ℃</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const dy = document.getElementById('dy');
+const tb = document.getElementById('tb');
+const temp = document.getElementById('temp');
+const dyVal = document.getElementById('dyVal');
+const tbVal = document.getElementById('tbVal');
+const tempVal = document.getElementById('tempVal');
+
+const brText = document.getElementById('brText');
+const hcText = document.getElementById('hcText');
+const tcText = document.getElementById('tcText');
+const riskText = document.getElementById('riskText');
+const hostState = document.getElementById('hostState');
+const hostExplain = document.getElementById('hostExplain');
+const torqueText = document.getElementById('torqueText');
+const heatText = document.getElementById('heatText');
+const speedText = document.getElementById('speedText');
+const climbText = document.getElementById('climbText');
+const observationText = document.getElementById('observationText');
+const evNote = document.getElementById('evNote');
+
+const phaseHostBadge = document.getElementById('phaseHostBadge');
+const phaseDyBadge = document.getElementById('phaseDyBadge');
+const phaseTbBadge = document.getElementById('phaseTbBadge');
+const hostCursor = document.getElementById('hostCursor');
+const dyCursor = document.getElementById('dyCursor');
+const tbCursor = document.getElementById('tbCursor');
+
+const graphCanvas = document.getElementById('graphCanvas');
+const gctx = graphCanvas.getContext('2d');
+
+const evCanvas = document.getElementById('evCanvas');
+const ectx = evCanvas.getContext('2d');
+
+let animTime = 0;
+
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+function model(T, dyPct, tbPct){
+  const Tc = 312 + 1.2*dyPct + 1.8*tbPct; // 단순화
+  const Br20 = 1.35 * (1 - 0.012*dyPct - 0.020*tbPct); // 첨가로 약간 감소
+  const alphaBr = 0.0011; // 0.11% /℃
+  let Br = Br20 * (1 - alphaBr*(T-20));
+  if (T > Tc) Br *= Math.max(0, 1 - (T-Tc)/20);
+  Br = clamp(Br, 0, 1.6);
+
+  const Hc20 = 1000 + 70*dyPct + 120*tbPct; // kA/m
+  const betaHc = clamp(0.0055 - 0.00018*dyPct - 0.00028*tbPct, 0.0022, 0.0055);
+  let Hc = Hc20 * (1 - betaHc*(T-20));
+  if (T > Tc - 15) Hc *= Math.max(0.15, 1 - (T-(Tc-15))/35);
+  Hc = clamp(Hc, 0, 2500);
+
+  const torque = clamp(100 * (Br/1.35), 0, 130);
+  const heat = clamp(100 * (Hc/1000), 0, 220);
+
+  let demagPenalty = 1;
+  let risk = "낮음";
+  if ((T > 150 && Hc < 500) || (T > 200 && Hc < 700)) {
+    demagPenalty = 0.72; risk = "높음";
+  } else if ((T > 120 && Hc < 650) || (T > 180 && Hc < 850)) {
+    demagPenalty = 0.88; risk = "보통";
+  }
+
+  const overall = clamp((0.56*torque + 0.44*heat)*demagPenalty, 0, 160);
+  const speed = Math.round(36 + overall*1.18);
+  const climb = overall > 110 ? "매우 좋음" : overall > 90 ? "좋음" : overall > 70 ? "보통" : "약함";
+
+  let hostPhase = "강자성";
+  if (T > Tc) hostPhase = "상자성";
+  else if (T > Tc - 45) hostPhase = "약해진 강자성";
+
+  return {Tc, Br, Hc, torque, heat, overall, speed, climb, risk, hostPhase};
+}
+
+function badgeClassByRisk(risk){
+  return risk==="낮음" ? "badge riskLow" : risk==="보통" ? "badge riskMid" : "badge riskHigh";
+}
+function phaseBadge(name){
+  if (name.includes("강자성")) return "badge ferro";
+  if (name.includes("반강자성")) return "badge anti";
+  return "badge para";
+}
+
+function updatePhaseBars(T){
+  const map = x => clamp((x + 200) / 550, 0, 1) * 100; // -200℃ ~ 350℃
+  hostCursor.style.left = `calc(${map(T)}% - 1px)`;
+  dyCursor.style.left = `calc(${map(T)}% - 1px)`;
+  tbCursor.style.left = `calc(${map(T)}% - 1px)`;
+
+  let dyPhase = "상자성";
+  if (T < -188) dyPhase = "강자성";
+  else if (T < -94) dyPhase = "반강자성";
+
+  let tbPhase = T < -53 ? "강자성" : "상자성";
+
+  phaseDyBadge.textContent = dyPhase;
+  phaseDyBadge.className = phaseBadge(dyPhase);
+  phaseTbBadge.textContent = tbPhase;
+  phaseTbBadge.className = phaseBadge(tbPhase);
+}
+
+function drawGraph(dyPct, tbPct, Tsel){
+  const W = graphCanvas.width, H = graphCanvas.height;
+  gctx.clearRect(0,0,W,H);
+
+  const pad = {l:72, r:74, t:32, b:56};
+  const x0 = pad.l, y0 = H-pad.b, gw = W-pad.l-pad.r, gh = H-pad.t-pad.b;
+
+  gctx.fillStyle = "#0c1230";
+  gctx.fillRect(0,0,W,H);
+
+  for(let i=0;i<=10;i++){
+    const x = x0 + gw*i/10;
+    gctx.strokeStyle = "#3c436d";
+    gctx.lineWidth = 1;
+    gctx.beginPath();
+    gctx.moveTo(x,pad.t);
+    gctx.lineTo(x,y0);
+    gctx.stroke();
+  }
+  for(let i=0;i<=8;i++){
+    const y = pad.t + gh*i/8;
+    gctx.beginPath();
+    gctx.moveTo(x0,y);
+    gctx.lineTo(x0+gw,y);
+    gctx.stroke();
+  }
+
+  gctx.fillStyle = "#dfe8ff";
+  gctx.font = "bold 20px sans-serif";
+  gctx.fillText("온도(℃)", W/2-36, H-16);
+
+  gctx.save();
+  gctx.translate(24, H/2+24);
+  gctx.rotate(-Math.PI/2);
+  gctx.fillText("잔류 자기 Br (T)", 0, 0);
+  gctx.restore();
+
+  gctx.save();
+  gctx.translate(W-16, H/2+50);
+  gctx.rotate(-Math.PI/2);
+  gctx.fillStyle = "#ffd0fb";
+  gctx.fillText("보자력 HcJ (kA/m)", 0, 0);
+  gctx.restore();
+
+  const xScale = t => x0 + gw*(t/250);
+  const yBr = b => y0 - gh*(b/1.5);
+  const yHc = h => y0 - gh*(h/2200);
+
+  gctx.fillStyle = "#dfe8ff";
+  gctx.font = "16px sans-serif";
+  for(let t=0;t<=250;t+=25){
+    const x = xScale(t);
+    gctx.fillText(String(t), x-10, y0+24);
+  }
+  for(let b=0;b<=1.5;b+=0.3){
+    const y = yBr(b);
+    gctx.fillText(b.toFixed(1), 30, y+5);
+  }
+  gctx.fillStyle = "#ffd0fb";
+  for(let h=0;h<=2200;h+=550){
+    const y = yHc(h);
+    gctx.fillText(String(h), W-64, y+5);
+  }
+
+  gctx.beginPath();
+  for(let t=0;t<=250;t++){
+    const m = model(t, dyPct, tbPct);
+    const x = xScale(t), y = yBr(m.Br);
+    if(t===0) gctx.moveTo(x,y); else gctx.lineTo(x,y);
+  }
+  gctx.strokeStyle = "#8ff0ff";
+  gctx.lineWidth = 4;
+  gctx.shadowColor = "#8ff0ff88";
+  gctx.shadowBlur = 10;
+  gctx.stroke();
+  gctx.shadowBlur = 0;
+
+  gctx.beginPath();
+  for(let t=0;t<=250;t++){
+    const m = model(t, dyPct, tbPct);
+    const x = xScale(t), y = yHc(m.Hc);
+    if(t===0) gctx.moveTo(x,y); else gctx.lineTo(x,y);
+  }
+  gctx.strokeStyle = "#ff9df5";
+  gctx.lineWidth = 4;
+  gctx.shadowColor = "#ff9df588";
+  gctx.shadowBlur = 10;
+  gctx.stroke();
+  gctx.shadowBlur = 0;
+
+  const cur = model(Tsel, dyPct, tbPct);
+  const cx = xScale(Tsel);
+
+  gctx.strokeStyle = "#c8ff7a";
+  gctx.lineWidth = 3;
+  gctx.setLineDash([8,8]);
+  gctx.beginPath();
+  gctx.moveTo(cx, pad.t);
+  gctx.lineTo(cx, y0);
+  gctx.stroke();
+  gctx.setLineDash([]);
+
+  gctx.fillStyle = "#8ff0ff";
+  gctx.beginPath();
+  gctx.arc(cx, yBr(cur.Br), 7, 0, Math.PI*2);
+  gctx.fill();
+
+  gctx.fillStyle = "#ff9df5";
+  gctx.beginPath();
+  gctx.arc(cx, yHc(cur.Hc), 7, 0, Math.PI*2);
+  gctx.fill();
+
+  gctx.fillStyle = "#eff6ff";
+  gctx.font = "bold 18px sans-serif";
+  gctx.fillText(`현재 온도 ${Tsel}℃`, cx < W/2 ? cx+12
